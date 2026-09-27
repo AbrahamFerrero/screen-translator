@@ -1,4 +1,4 @@
-package com.vamsi3.android.screentranslator.feature.translate
+﻿package com.vamsi3.android.screentranslator.feature.translate
 
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
@@ -7,6 +7,8 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
 import android.util.Log
 import android.view.accessibility.AccessibilityEvent
@@ -30,9 +32,12 @@ import kotlin.time.toDuration
 
 const val PACKAGE_ANDROID_SYSTEM_UI = "com.android.systemui"
 const val MIME_TYPE_JPEG = "image/jpeg"
+private const val DEFAULT_NOTIFICATION_SHADE_DELAY_MS = 350L
 
 @AndroidEntryPoint
 class ScreenTranslatorAccessibilityService : AccessibilityService() {
+
+    private val mainHandler = Handler(Looper.getMainLooper())
 
     private val scope = CoroutineScope(Dispatchers.IO)
 
@@ -314,3 +319,4 @@ class ScreenTranslatorAccessibilityService : AccessibilityService() {
         Toast.makeText(application, message, Toast.LENGTH_LONG).show()
     }
 }
+
