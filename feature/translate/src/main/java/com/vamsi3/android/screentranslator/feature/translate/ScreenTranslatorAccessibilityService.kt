@@ -1,4 +1,4 @@
-﻿package com.vamsi3.android.screentranslator.feature.translate
+package com.vamsi3.android.screentranslator.feature.translate
 
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
@@ -132,15 +132,7 @@ class ScreenTranslatorAccessibilityService : AccessibilityService() {
 
         val translateApp = userDataRepository.userData.value?.translateApp ?: TranslateApp.default
 
-        if (event.packageName.equals(PACKAGE_ANDROID_SYSTEM_UI) &&
-            event.text.any { it.contains("Notification shade") }
-        ) {
-            disableEvents()
-            if (translateApp == TranslateApp.GOOGLE) {
-                enableEventsForPackage(translateApp.packageName)
-            }
-            takeScreenshotAndTranslate()
-        }
+
 
         if (event.packageName.equals(translateApp.packageName)) {
             if (translateApp == TranslateApp.GOOGLE) {
@@ -164,18 +156,51 @@ class ScreenTranslatorAccessibilityService : AccessibilityService() {
             }
 
             else -> {
-                enableEventsForPackage(PACKAGE_ANDROID_SYSTEM_UI)
+                val translateApp =
+                    userDataRepository.userData.value?.translateApp ?: TranslateApp.default
+
+                disableEvents()
+
+                if (translateApp == TranslateApp.GOOGLE) {
+                    enableEventsForPackage(translateApp.packageName)
+                }
+
                 dismissNotificationShade()
+
+                val configuredDelay =
+                    (userDataRepository.userData.value?.notificationShadeCollapseDelayDuration
+                        ?: Duration.ZERO).inWholeMilliseconds
+
+                val delay =
+                    if (configuredDelay > 0) configuredDelay
+                    else DEFAULT_NOTIFICATION_SHADE_DELAY_MS
+
+                Log.i(
+                    "ScreenTranslatorAccessibilityService",
+                    "Scheduling screenshot after notification shade dismiss: ${delay}ms"
+                )
+
+                mainHandler.postDelayed(
+                    {
+                        Log.i(
+                            "ScreenTranslatorAccessibilityService",
+                            "Taking screenshot after notification shade dismiss"
+                        )
+                        takeScreenshotAndTranslate()
+                    },
+                    delay
+                )
             }
         }
     }
 
     private fun dismissNotificationShade() {
-        performGlobalAction(GLOBAL_ACTION_DISMISS_NOTIFICATION_SHADE)
+        val result = performGlobalAction(GLOBAL_ACTION_DISMISS_NOTIFICATION_SHADE)
 
-        val delay = userDataRepository.userData.value?.notificationShadeCollapseDelayDuration
-            ?: Duration.ZERO
-        Thread.sleep(delay.inWholeMilliseconds)
+        Log.i(
+            "ScreenTranslatorAccessibilityService",
+            "Notification shade dismiss requested; accepted=$result"
+        )
     }
 
     private fun enableEventsForPackage(packageName: String) {
