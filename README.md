@@ -1,6 +1,27 @@
-# phamd's Fork
+# Screen Translator
 
-This is a fork with additional features listed below.
+Personal fork of [dat-bi/screen-translator](https://github.com/dat-bi/screen-translator), based on the original project by [vamsi3](https://github.com/vamsi3/screen-translator).
+
+This repository contains personal, independent contributions and is not affiliated with my employer.
+
+## My contributions
+
+### Quick Settings screen capture reliability
+
+Improved the Android Quick Settings screenshot workflow to address failures on devices using non-English system languages.
+
+- Removed the dependency on the English accessibility text `Notification shade`.
+- Changed the tile workflow to dismiss the notification panel and trigger screen capture directly.
+- Replaced blocking `Thread.sleep()` calls with asynchronous execution using `Handler.postDelayed()`.
+- Preserved the existing screenshot forwarding behavior.
+
+**Known limitation:** Automatic switching to Google Translate mode still depends on some English accessibility strings.
+
+**Implementation:** [PR #1 - Quick Settings direct capture](https://github.com/AbrahamFerrero/screen-translator/pull/1)
+
+## Features inherited from upstream
+
+The following features and documentation come from the upstream project and its previous contributors.
 
 <table style="border: none; border-collapse: collapse;">
 <tr style="border: none;">
